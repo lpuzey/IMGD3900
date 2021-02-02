@@ -5,26 +5,38 @@
 
 "use strict";
 
+
 // The G object will contain all public constants, variables and functions.
 // The immediately invoked function expression (IIFE) encapsulates all game functionality.
 // It is called as this file is loaded, and initializes the G object.
 
+//Anne Higgins
+//Mod 1 changed width from 21 to 22
+//Mod 2 changed height from 21 to 22
+//Mod 3 changed background color from dark grey to magenta
+//Mod 4 changed wall color from black to indigo
+//Mod 5 changed floor color from grey to cyan
+//Mod 6 changed exit color from blue to red
+//Mod 7 changed actor color from green to orange
+//Mod 8 changed exit 'x' color from white to black
+//Mod 9 changed coin color from yellow to light gray
+//Mod 10 changed "Found _ gold" and "You escaped with _ gold" to "Found _ silver" and "You escaped with _ silver"
 const G = ( function () {
 
 	// Constants are in all upper-case
 
-	const WIDTH = 21; // grid width
-	const HEIGHT = 21; // grid height
+	const WIDTH = 22; // grid width
+	const HEIGHT = 22; // grid height
 
 	const PLANE_FLOOR = 0; // z-plane of floor
 	const PLANE_ACTOR = 1; // z-plane of actor
 
-	const COLOR_BG = PS.COLOR_GRAY_DARK; // background color
-	const COLOR_WALL = PS.COLOR_BLACK; // wall color
-	const COLOR_FLOOR = PS.COLOR_GRAY; // floor color
-	const COLOR_ACTOR = PS.COLOR_GREEN; // actor color
-	const COLOR_GOLD = PS.COLOR_YELLOW; // gold color
-	const COLOR_EXIT = PS.COLOR_BLUE; // exit color
+	const COLOR_BG = PS.COLOR_MAGENTA; // background color
+	const COLOR_WALL = PS.COLOR_INDIGO; // wall color
+	const COLOR_FLOOR = PS.COLOR_CYAN; // floor color
+	const COLOR_ACTOR = PS.COLOR_ORANGE; // actor color
+	const COLOR_GOLD = PS.COLOR_GRAY_LIGHT; // gold color
+	const COLOR_EXIT = PS.COLOR_RED; // exit color
 
 	const SOUND_FLOOR = "fx_click"; // touch floor sound
 	const SOUND_WALL = "fx_hoot"; // touch wall sound
@@ -60,27 +72,28 @@ const G = ( function () {
 		height: HEIGHT, // must match HEIGHT!
 		pixelSize: 1, // must be present!
 		data: [
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0,
-			0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-			0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0,
-			0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-			0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 2, 1, 1, 0, 0, 1, 0, 0, 1, 0,
-			0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0,
-			0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0,
-			0, 1, 0, 0, 1, 2, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0,
-			0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-			0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 2, 0,
-			0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-			0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0,
-			0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-			0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0,
+			0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 2, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 1, 0, 0, 1, 2, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0,
+			0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 2, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0,
+			0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		]
 	};
 
@@ -147,16 +160,16 @@ const G = ( function () {
 			if ( gold_found >= gold_count ) {
 				exit_ready = true;
 				PS.color( exitX, exitY, COLOR_EXIT ); // show the exit
-				PS.glyphColor( exitX, exitY, PS.COLOR_WHITE ); // mark with white X
+				PS.glyphColor( exitX, exitY, PS.COLOR_BLACK ); // mark with black X
 				PS.glyph( exitX, exitY, "X" );
-				PS.statusText( "Found " + gold_found + " gold! Exit open!" );
+				PS.statusText( "Found " + gold_found + " silver! Exit open!" );
 				PS.audioPlay( SOUND_OPEN );
 			}
 
 			// Otherwise just update score
 
 			else {
-				PS.statusText( "Found " + gold_found + " gold!" );
+				PS.statusText( "Found " + gold_found + " silver!" );
 				PS.audioPlay( SOUND_GOLD );
 			}
 		}
@@ -165,7 +178,7 @@ const G = ( function () {
 
 		else if ( exit_ready && ( actorX === exitX ) && ( actorY === exitY ) ) {
 			PS.timerStop( id_timer ); // stop movement timer
-			PS.statusText( "You escaped with " + gold_found + " gold!" );
+			PS.statusText( "You escaped with " + gold_found + " silver!" );
 			PS.audioPlay( SOUND_WIN );
 			won = true;
 			return;
