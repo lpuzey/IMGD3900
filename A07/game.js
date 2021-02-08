@@ -51,7 +51,7 @@ const G = ( function () {
 	// Each string must be an email address of a student enrolled in this section of IMGD-3900.
 	// NOTE: Do NOT include the @wpi.edu part of the email address.
 
-	const USERS = "username"; // Change this! If "username" is specified, no email will be sent.
+	const USERS = ["lpuzey","adhiggins"]; // Change this! If "username" is specified, no email will be sent.
 
 	// Variables
 
@@ -62,6 +62,8 @@ const G = ( function () {
 	let gold_count = 0; // initial number of gold pieces in map
 	let gold_found = 0; // gold pieces collected
 	let won = false; // true on win
+
+	let total_clicks = 0; //the number of times a person clicks
 
 	// This imageMap is used for map drawing and pathfinder logic
 	// All properties MUST be present!
@@ -193,6 +195,7 @@ const G = ( function () {
 			// Game over, so record the exit event, email the collected data and discard it
 
 			PS.dbEvent( DB, "win", true );
+			PS.dbEvent( DB, "Clicks", G.total_clicks );
 			PS.dbSend( DB, USERS, { discard : true } );
 
 			return;
@@ -362,6 +365,7 @@ PS.init = function( system, options ) {
 // Called when the mouse button is clicked on a bead, or when a bead is touched
 
 PS.touch = function( x, y, data, options ) {
+	G.total_clicks += 1;
 	G.move( x, y ); // initiates actor movement
 };
 
