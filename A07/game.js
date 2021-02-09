@@ -165,7 +165,6 @@ const G = ( function () {
 			if ( countdown <= 0 ) {
 				PS.statusText( "You ran out of time!" );
 				PS.audioPlay( SOUND_LOSE );
-				PS.dbEvent( DB, "clicks", total_clicks );
 				PS.dbEvent( DB, "timeout", true ); // record the timeout event
 				endgame();
 				return;
