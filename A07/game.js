@@ -317,6 +317,7 @@ const G = ( function () {
 
 		move : function ( x, y ) {
 			let line;
+			total_clicks += 1;
 
 			// Do nothing if game over
 
@@ -328,7 +329,7 @@ const G = ( function () {
 			// to touched position
 
 			line = PS.pathFind( id_path, actorX, actorY, x, y );
-			G.total_clicks += 1;
+
 
 			// If line is not empty, it's valid,
 			// so make it the new path
