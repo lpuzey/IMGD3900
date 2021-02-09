@@ -195,7 +195,7 @@ const G = ( function () {
 			// Game over, so record the exit event, email the collected data and discard it
 
 			PS.dbEvent( DB, "win", true );
-			PS.dbEvent( DB, "Clicks", total_clicks );
+			PS.dbEvent( DB, "clicks", total_clicks );
 			PS.dbSend( DB, USERS, { discard : true } );
 
 			return;
