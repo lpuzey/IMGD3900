@@ -4,7 +4,7 @@
 // The following comment lines are for JSHint. You can remove them if you don't use JSHint.
 /* jshint browser : true, devel : true, esversion : 6, freeze : true */
 /* globals PS : true */
-
+//Anne Higgins IMGD 3900
 "use strict"; // do not delete this directive!
 
 // This immediately-invoked function expression (IIFE) encapsulates all game functionality.
@@ -30,6 +30,7 @@ const G = ( function () {
 	const SOUND_OPEN = "fx_powerup8"; // open exit sound
 	const SOUND_WIN = "fx_tada"; // win sound
 	const SOUND_ERROR = "fx_uhoh"; // error sound
+	const SOUND_LOSE = "fx_squawk"; // *BM* this sound is played if time runs out
 
 	const MAP_WALL = 0; // wall
 	const MAP_FLOOR = 1; // floor
@@ -38,6 +39,23 @@ const G = ( function () {
 	const MAP_EXIT = 4; // floor + exit
 
 	const GOLD_MAX = 10; // maximum gold
+
+	// *BM*
+	// The RATE constant determines how frequently the tick() function is called.
+	// The assigned value (6) makes the timer run every 6 ticks, or 1/10th of a second.
+	// The FPS constant is set to the effective frame rate (60 / 6 = 10 FPS).
+	// Don't change these unless you actually want the game to run at a different speed!
+
+	const RATE = 6;
+	const FPS = 60 / RATE;
+
+	// *BM*
+	// The countdown variable constant determines long a game will last (in seconds).
+	// It is decremented every second by the tick() function.
+	// If it reaches zero before all gold is collected, the game is lost.
+
+	let countdown = 60; // I changed from 30 to 60
+	let frame = FPS ; // Decremented on every tick() call; used to update countdown
 
 	// *DB*
 	// These two constants are used for the database functions
@@ -61,8 +79,7 @@ const G = ( function () {
 
 	let gold_count = 0; // initial number of gold pieces in map
 	let gold_found = 0; // gold pieces collected
-	let won = false; // true on win
-
+	let done = false; // *BM* Set to true when game is done (win or lose)
 	let total_clicks = 0; //the number of times a person clicks
 
 	// This imageMap is used for map drawing and pathfinder logic
@@ -75,25 +92,25 @@ const G = ( function () {
 	// To move the exit's position, swap the 4 and a 1
 	// You cannot have more than one actor/exit, or more than GOLD_MAX gold pieces!
 
-	var map = {
+	let map = {
 		width : 23, height : 23, pixelSize : 1,
 		data : [
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+			0, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0,
 			0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0,
 			0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0,
 			0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
 			0, 1, 1, 1, 1, 1, 0, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0,
 			0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
-			0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 0,
+			0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
 			0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-			0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+			0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 2, 0, 1, 1, 1, 0, 2, 0,
 			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0,
-			0, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1, 1, 0, 1, 1, 2, 1, 1, 0, 1, 1, 1, 0,
+			0, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 2, 0,
 			0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-			0, 1, 1, 2, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0,
+			0, 1, 1, 2, 0, 1, 0, 2, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0,
 			0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
-			0, 1, 0, 1, 0, 1, 1, 2, 0, 1, 1, 1, 1, 2, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+			0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 2, 0, 1, 1, 1, 0, 1, 1, 1, 0,
 			0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
 			0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 2, 1, 1, 0,
 			0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0,
@@ -122,8 +139,39 @@ const G = ( function () {
 	let path; // path to follow, null if none
 	let step; // current step on path
 
+	// *BM*
+	// This endgame() function is called when the game ends, win or lose.
+	// It shuts everything down and transmits the database.
+
+	const endgame = function () {
+		done = true;
+		PS.timerStop( id_timer ); // stop movement/countdown timer
+		PS.dbSend( DB, USERS, { discard : true } ); // transmit and discard database
+	};
+
 	const tick = function () {
 		let p, nx, ny, ptr, val;
+
+		// *BM*
+		// Update frame count, change countdown display after each second.
+
+		frame -= 1;
+		if ( frame <= 0 ) {
+			frame = FPS; // reset
+
+			// Decrement countdown timer, end game if TIMEOUT value is reached.
+
+			countdown -= 1;
+			if ( countdown <= 0 ) {
+				PS.statusText( "You ran out of time!" );
+				PS.audioPlay( SOUND_LOSE );
+				PS.dbEvent( DB, "timeout", true ); // record the timeout event
+				endgame();
+				return;
+			}
+
+			PS.statusText( countdown ); // display number of seconds remaining
+		}
 
 		if ( !path ) { // path invalid (null)?
 			return; // just exit
@@ -186,18 +234,16 @@ const G = ( function () {
 		// If exit is ready and actor has reached it, end game
 
 		else if ( exit_ready && ( actorX === exitX ) && ( actorY === exitY ) ) {
-			PS.timerStop( id_timer ); // stop movement timer
+			// PS.timerStop( id_timer ); // stop movement timer *BM* Moved to endgame()
 			PS.statusText( "You escaped with " + gold_found + " gold!" );
 			PS.audioPlay( SOUND_WIN );
-			won = true;
 
 			// *DB*
 			// Game over, so record the exit event, email the collected data and discard it
 
 			PS.dbEvent( DB, "win", true );
 			PS.dbEvent( DB, "clicks", total_clicks );
-			PS.dbSend( DB, USERS, { discard : true } );
-
+			endgame(); // *BM*
 			return;
 		}
 
@@ -219,7 +265,7 @@ const G = ( function () {
 		// Called once at startup
 
 		init : function () {
-			let len, i, x, y, val, color;
+			let x, y, val;
 
 			// Establish grid size
 			// This should always be done FIRST, before any other initialization!
@@ -276,7 +322,7 @@ const G = ( function () {
 			}
 
 			PS.statusColor( PS.COLOR_WHITE );
-			PS.statusText( "Click/touch to move" );
+			PS.statusText( countdown ); // *BM* Show initial countdown value
 
 			// Preload & lock sounds
 
@@ -285,6 +331,7 @@ const G = ( function () {
 			PS.audioLoad( SOUND_GOLD, { lock : true } );
 			PS.audioLoad( SOUND_OPEN, { lock : true } );
 			PS.audioLoad( SOUND_WIN, { lock : true } );
+			PS.audioLoad( SOUND_LOSE, { lock : true } ); // *BM*
 
 			// Create 1x1 solid sprite for actor
 			// Place on actor plane in initial actor position
@@ -304,7 +351,7 @@ const G = ( function () {
 
 			path = null; // start with no path
 			step = 0;
-			id_timer = PS.timerStart( 6, tick );
+			id_timer = PS.timerStart( RATE, tick ); // *BM* Now uses the RATE constant
 
 			// *DB*
 			// Initialize the database for event recording
@@ -321,7 +368,7 @@ const G = ( function () {
 
 			// Do nothing if game over
 
-			if ( won ) {
+			if ( done ) {
 				return;
 			}
 
@@ -329,7 +376,6 @@ const G = ( function () {
 			// to touched position
 
 			line = PS.pathFind( id_path, actorX, actorY, x, y );
-
 
 			// If line is not empty, it's valid,
 			// so make it the new path
@@ -359,20 +405,17 @@ const G = ( function () {
 // PS.init( system, options )
 // Initializes the game
 
-PS.init = function( system, options ) {
-	G.init(); // game-specific initialization
-};
+// Notice that these initializers do NOT call the assigned functions!
+// They only tell the engine WHAT function to call when an event happens.
+
+PS.init = G.init; // game-specific initialization
 
 // PS.touch ( x, y, data, options )
 // Called when the mouse button is clicked on a bead, or when a bead is touched
 
-PS.touch = function( x, y, data, options ) {
-	G.move( x, y ); // initiates actor movement
-};
+PS.touch = G.move; // initiates actor movement
 
 // PS.shutdown ( options )
 // Called when the browser window running Perlenspiel is about to close.
 
-PS.shutdown = function( options ) {
-	G.shutdown();
-};
+PS.shutdown = G.shutdown;
