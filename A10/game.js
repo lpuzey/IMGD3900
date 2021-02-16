@@ -52,6 +52,8 @@ const DB = "BunnySim";
 const USERS = ["lpuzey","adhiggins"];
 //const USERS = "lpuzey";
 
+let total_clicks = 0; //the number of times a person clicks
+
 let user;
 
 let curIm;
@@ -197,6 +199,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
+    total_clicks += 1;
 
     if((x == 3)&&(y == 1)){
         if(curIm == "Brush"){
@@ -236,6 +239,7 @@ PS.touch = function( x, y, data, options ) {
             curIm = "Bath";
             PS.dbEvent( DB, "State", curIm );
             PS.statusText( "Bathing Minigame. Click Button Again to Exit." );
+            PS.dbEvent( DB, "clicks", total_clicks );
             PS.dbSend( DB, USERS, { discard : true } );
         }
 
