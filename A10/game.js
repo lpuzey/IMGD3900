@@ -48,8 +48,72 @@ Any value returned is ignored.
 [system : Object] = A JavaScript object containing engine and host platform information properties; see API documentation for details.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
+const DB = "BunnySim";
+//const USERS = ["lpuzey","adhiggins"];
+const USERS = "lpuzey";
+
+let user;
+
+let curIm;
+
+let myLoader;
+
+// Image loading function
+// Called when image loads successfully
+// [data] parameter will contain imageData
+
+myLoader = function ( imageData ) {
+
+    // Blit the image to the grid at 0, 0
+
+    PS.imageBlit( imageData, 0, 0 );
+};
+
+
+const RATE = 6;
+const FPS = 60 / RATE;
+
+let countdown = 10; // I changed from 30 to 60
+let frame = FPS ; // Decremented on every tick() call; used to update countdown
+
+let id_timer; // timer id
+
+const tick = function () {
+
+    // *BM*
+    // Update frame count, change countdown display after each second.
+
+    frame -= 1;
+    if ( frame <= 0 ) {
+        frame = FPS; // reset
+
+        // Decrement countdown timer, end game if TIMEOUT value is reached.
+
+        countdown -= 1;
+        if ( countdown <= 0 ) {
+            //PS.statusText( "You ran out of time!" );
+            if(curIm == "Normal"){
+                PS.imageLoad( "images/BunnySad.bmp", myLoader );
+                curIm = "Sad";
+                countdown = 10;
+            }
+            if(curIm == "Happy"){
+                PS.imageLoad( "images/BunnyNormal.bmp", myLoader );
+                curIm = "Normal";
+                countdown = 10;
+            }
+
+            // PS.audioPlay( SOUND_LOSE );
+            // PS.dbEvent( DB, "clicks", total_clicks );
+            // PS.dbEvent( DB, "timeout", true ); // record the timeout event
+        }
+
+        // PS.statusText( countdown ); // display number of seconds remaining
+    }
+}
 
 PS.init = function( system, options ) {
+
 	// Uncomment the following code line
 	// to verify operation:
 
@@ -76,28 +140,48 @@ PS.init = function( system, options ) {
 	// PS.statusText( "Game" );
 
 	// Add any other initialization code you need here.
-    var myLoader;
 
-    // Image loading function
-    // Called when image loads successfully
-    // [data] parameter will contain imageData
-
-    myLoader = function ( imageData ) {
-
-        // Blit the image to the grid at 0, 0
-
-        PS.imageBlit( imageData, 0, 0 );
-    };
 
     PS.gridSize( 32, 32 ); // set initial size
     PS.border( PS.ALL, PS.ALL, 0 ); // no borders
 
     // Load image in default format (4)
 
-    PS.imageLoad( "images/BunnyDraftBts.bmp", myLoader );
+    PS.imageLoad( "images/BunnyNormal.bmp", myLoader );
+    curIm = "Normal";
+
+    //PS.dbInit( DB );
 
 
-    PS.statusText( "Bunny Sim" );
+    PS.statusText( "Click on the Bunny to pet him" );
+
+
+
+
+
+    const onLogin = function ( id, username ) {
+        if ( username === PS.ERROR ) {
+            PS.statusText( "Login failed; aborting." );
+            return; // aborts game startup
+        }
+
+        user = username; // save collected username
+        PS.statusText( "Hello, " + user + "!" );
+        id_timer = PS.timerStart( RATE, tick );
+
+        // Final game startup code goes here
+    };
+
+    // Collect user credentials, init database
+    // NOTE: To disable DB operations during development,
+    // change the value of .active to false
+
+
+
+    PS.dbLogin( DB, onLogin, { active : true } );
+
+
+
 };
 
 /*
@@ -113,30 +197,64 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
-    var myLoader;
 
-    // Image loading function
-    // Called when image loads successfully
-    // [data] parameter will contain imageData
+    if((x == 3)&&(y == 1)){
+        if(curIm == "Brush"){
+            PS.imageLoad( "images/BunnyHappy.bmp", myLoader );
+            countdown = 10;
+            PS.statusText( "Click on the Bunny to pet him" );
+            curIm = "Happy";
+        }else{
+            PS.imageLoad( "images/BunnyBrush.bmp", myLoader );
+            curIm = "Brush";
+            PS.dbEvent( DB, "State", curIm );
+            PS.statusText( "Brushing Minigame. Click Button Again to Exit." );
+        }
 
-    myLoader = function ( imageData ) {
-
-        // Blit the image to the grid at 0, 0
-
-        PS.imageBlit( imageData, 0, 0 );
-    };
-
-    if((x == 15)&&(y == 2)){
-        PS.imageLoad( "images/BunnyDraftRed.bmp", myLoader );
     }
-    if((x == 4)&&(y == 2)){
-        PS.imageLoad( "images/BunnyDraftBts.bmp", myLoader );
+    if((x == 15)&&(y == 1)){
+        if(curIm == "Food"){
+            PS.imageLoad( "images/BunnyHappy.bmp", myLoader );
+            countdown = 10;
+            PS.statusText( "Click on the Bunny to pet him" );
+            curIm = "Happy";
+        }else{
+            PS.imageLoad( "images/BunnyFood.bmp", myLoader );
+            curIm = "Food";
+            PS.dbEvent( DB, "State", curIm );
+            PS.statusText( "Feeding Minigame. Click Button Again to Exit." );
+        }
     }
-    if((x == 27)&&(y == 2)){
-        PS.imageLoad( "images/BunnyDraftGreen.bmp", myLoader );
+    if((x == 28)&&(y == 1)){
+        if(curIm == "Bath"){
+            PS.imageLoad( "images/BunnyHappy.bmp", myLoader );
+            countdown = 10;
+            PS.statusText( "Click on the Bunny to pet him" );
+            curIm = "Happy";
+        }else{
+            PS.imageLoad( "images/BunnyBath.bmp", myLoader );
+            curIm = "Bath";
+            PS.dbEvent( DB, "State", curIm );
+            PS.statusText( "Bathing Minigame. Click Button Again to Exit." );
+            PS.dbSend( DB, USERS, { discard : true } );
+        }
+
+    }
+    else if(curIm == "Sad"){
+        PS.imageLoad( "images/BunnyNormal.bmp", myLoader );
+        curIm = "Normal";
+        PS.dbEvent( DB, "State", curIm );
+        countdown = 10;
+    }
+    else if(curIm == "Normal"){
+        PS.imageLoad( "images/BunnyHappy.bmp", myLoader );
+        curIm = "Happy";
+        PS.dbEvent( DB, "State", curIm );
+        countdown = 15;
     }
 
-	 PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
+    // PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
+    //  PS.debug( "PS.touch() @ " + curIm );
 
 	// Add code here for mouse clicks/touches
 	// over a bead.
