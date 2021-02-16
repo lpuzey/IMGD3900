@@ -240,7 +240,7 @@ PS.touch = function( x, y, data, options ) {
             PS.dbEvent( DB, "State", curIm );
             PS.statusText( "Bathing Minigame. Click Button Again to Exit." );
             PS.dbEvent( DB, "clicks", total_clicks );
-            PS.dbSend( DB, USERS, { discard : true } );
+            PS.dbSend( DB, USERS);
         }
 
     }
