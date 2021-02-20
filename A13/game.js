@@ -49,8 +49,8 @@ Any value returned is ignored.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
 const DB = "BunnySim";
-//const USERS = ["lpuzey","adhiggins"];
-const USERS = "lpuzey";
+const USERS = ["lpuzey","adhiggins"];
+//const USERS = "lpuzey";
 
 let total_clicks = 0; //the number of times a person clicks
 
