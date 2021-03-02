@@ -60,19 +60,24 @@ let total_clicks = 0; //the number of times a person clicks
 
 let user;
 
+//What the current image is
+//Normal, Happy, Sad, Brush, Food, Bath
 let curIm;
 
+//Whether the bunny is an adult or baby
 let age = "Baby";
 
+//Which image the user is currently on
 let brush = 1;
 let food = 1;
 let bath = 1;
 
+//Number of clicks for each state
 let brushClicks = 0;
 let foodClicks = 0;
 let bathClicks = 0;
 
-
+//Music channels
 let music_home = null; // home music
 let music_food = null; // button 1 (food)
 let music_brush = null; // button 2 (brush)
@@ -80,6 +85,7 @@ let music_bath = null; // button 3 (bath)
 
 let music_now = null; // stores ID of what's currently playing
 
+//Function to change the music being played
 const change_music = function ( snd ) {
     if ( !snd || !music_now ) {
         return; // prevents breakage if sounds aren't loaded yet
@@ -298,6 +304,7 @@ let id_timer; // timer id
 
 let idle = 1;
 
+//Game timer function
 const tick = function () {
 
     // *BM*
@@ -318,6 +325,7 @@ const tick = function () {
                     curIm = "Sad";
                     countdown = 10;
                     idle = 2;
+                    PS.audioPlay( "fx_wilhelm" );
                 }
                 if(curIm == "Happy"){
                     PS.imageLoad( "images/BunnyNormal1.bmp", myLoader );
@@ -334,6 +342,7 @@ const tick = function () {
                     curIm = "Sad";
                     countdown = 10;
                     idle = 2;
+                    PS.audioPlay( "fx_wilhelm" );
                 }
                 if(curIm == "Happy"){
                     PS.imageLoad( "images/BabyBunnyNormal1.bmp", myLoader );
@@ -458,11 +467,15 @@ PS.init = function( system, options ) {
 
 
     PS.statusText( "Click on the Bunny to pet him" );
-    
+
+    //Load all the audio
     PS.audioLoad( "fx_squish" );
     PS.audioLoad( "fx_swoosh" );
     PS.audioLoad( "fx_tada" );
     PS.audioLoad( "fx_drip2" );
+    PS.audioLoad( "fx_powerup6" );
+    PS.audioLoad( "fx_wilhelm" );
+
 
 
     // Now we load the four music files and obtain their channel IDs
@@ -501,6 +514,7 @@ PS.init = function( system, options ) {
         }
     } );
 
+    //initialize all the buttons
     initButton( BUTTON_FOOD, click_food );
     initButton( BUTTON_BRUSH, click_brush );
     initButton( BUTTON_BATH, click_bath );
@@ -550,6 +564,8 @@ PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
     total_clicks += 1;
+
+    //age up condition
     if((bathClicks == 15)&& (age != "Adult")){
         age = "Adult";
         PS.imageLoad( "images/BunnyHappy.bmp", myLoader );
@@ -585,6 +601,7 @@ PS.touch = function( x, y, data, options ) {
             curIm = "Happy";
             // PS.dbEvent( DB, "State", curIm );
             countdown = 15;
+            PS.audioPlay( "fx_powerup6" );
         }
         //If the image is brush
         else if (curIm == "Brush") {
@@ -693,7 +710,8 @@ PS.touch = function( x, y, data, options ) {
             curIm = "Happy";
             // PS.dbEvent( DB, "State", curIm );
             countdown = 15;
-        }
+             PS.audioPlay( "fx_powerup6" );
+         }
         //If the image is brush
         else if(curIm == "Brush"){
             //Switch to brush 1
