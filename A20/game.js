@@ -181,16 +181,17 @@ const click_green = function () {
 	let x = 4;
 	let y = 2;
 
-	sequenceUser.push(0);
+	if(!waiting){
+		sequenceUser.push(0);
 
-	PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
+		PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
 
-	PS.color( x, y, PS.COLOR_GREEN );
+		PS.color( x, y, PS.COLOR_GREEN );
 
-	PS.audioPlay( "xylo_a4" );
+		PS.audioPlay( "xylo_a4" );
 
-	checkSequence(sequenceUser.length-1);
-
+		checkSequence(sequenceUser.length-1);
+	}
 
 };
 
@@ -200,15 +201,17 @@ const click_red = function () {
 	let x = 6;
 	let y = 2;
 
-	sequenceUser.push(1);
+	if(!waiting){
+		sequenceUser.push(1);
 
-	PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
+		PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
 
-	PS.color( x, y, PS.COLOR_RED );
+		PS.color( x, y, PS.COLOR_RED );
 
-	PS.audioPlay( "xylo_c5" );
+		PS.audioPlay( "xylo_c5" );
 
-	checkSequence(sequenceUser.length-1);
+		checkSequence(sequenceUser.length-1);
+	}
 
 };
 
@@ -218,15 +221,17 @@ const click_yellow = function () {
 	let x = 9;
 	let y = 2;
 
-	sequenceUser.push(2);
+	if(!waiting){
+		sequenceUser.push(2);
 
-	PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
+		PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
 
-	PS.color( x, y, PS.COLOR_YELLOW );
+		PS.color( x, y, PS.COLOR_YELLOW );
 
-	PS.audioPlay( "xylo_c6" );
+		PS.audioPlay( "xylo_c6" );
 
-	checkSequence(sequenceUser.length-1);
+		checkSequence(sequenceUser.length-1);
+	}
 
 };
 
@@ -236,15 +241,17 @@ const click_blue = function () {
 	let x = 11;
 	let y = 2;
 
-	sequenceUser.push(3);
+	if(!waiting){
+		sequenceUser.push(3);
 
-	PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
+		PS.fade( x, y, 30, { rgb : PS.COLOR_WHITE } );
 
-	PS.color( x, y, PS.COLOR_BLUE );
+		PS.color( x, y, PS.COLOR_BLUE );
 
-	PS.audioPlay( "xylo_c7" );
+		PS.audioPlay( "xylo_c7" );
 
-	checkSequence(sequenceUser.length-1);
+		checkSequence(sequenceUser.length-1);
+	}
 
 };
 
@@ -310,7 +317,6 @@ PS.init = function( system, options ) {
 	// Collect user credentials, init database
 	// NOTE: To disable DB operations during development,
 	// change the value of .active to false
-
 
 
 	PS.dbLogin( DB, onLogin, { active : true } );
@@ -443,7 +449,7 @@ PS.keyUp = function( key, shift, ctrl, options ) {
 
 	if((key == 32)&&(waiting == true)){
 
-		PS.statusText( "Practice playing your Flute." );
+		PS.statusText( "Repeat the Song." );
 		playSequence();
 		waiting = false;
 	}
