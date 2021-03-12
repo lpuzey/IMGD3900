@@ -52,6 +52,8 @@ Any value returned is ignored.
 //AUDIO CREDIT
 //Flute noises by Nintendo
 //From The Legend of Zelda: Ocarina of Time
+//Background music from
+//The Legend of Zelda: Majora's Mask
 
 
 const DB = "PiperStory";
@@ -68,6 +70,12 @@ let game2 = false;
 
 let win = false;
 let gameover = false;
+
+//background music
+//Music channels
+let music_home = null; // home music
+
+
 
 //plays the music and buttons for the sequence
 function playSequence(){
@@ -132,12 +140,11 @@ function checkSequence(indexOfArray) {
 
 		if(sequenceMade.length === sequenceUser.length) {
 			//Correct Sequence
-			if(level == 3){
+			if(level == 5){
 				PS.statusText( "You Win! Press SPACE." );
 				win = true;
-				// PS.dbEvent( DB, "Win?", "Won" );
-				// S.dbEvent( DB, "LevelNum", level);
-				// PS.dbSend( DB, USERS);
+				PS.dbEvent( DB, "Win?", "Won" );
+				PS.dbEvent( DB, "LevelNum", level);
 			}else{
 				nextSequence();
 			}
@@ -146,9 +153,8 @@ function checkSequence(indexOfArray) {
 		//What happens when you fail
 		PS.statusText( "Gameover! Press SPACE." );
 		gameover = true;
-		// PS.dbEvent( DB, "Win?", "Gameover" );
-		// PS.dbEvent( DB, "LevelNum", level);
-		// PS.dbSend( DB, USERS);
+		PS.dbEvent( DB, "Win?", "Gameover" );
+		PS.dbEvent( DB, "LevelNum", level);
 	}
 };
 
@@ -289,6 +295,28 @@ myLoader = function ( imageData ) {
 	PS.imageBlit( imageData, 0, 0 );
 };
 
+let music_now = null; // stores ID of what's currently playing
+
+//Function to change the music being played
+const change_music = function ( snd ) {
+	if ( !snd || !music_now ) {
+		return; // prevents breakage if sounds aren't loaded yet
+	}
+
+	PS.audioStop( music_now ); // stop whatever is playing
+
+	let play = snd; // assume this is the next sound to play
+
+	// If this button's sound is already playing, switch to home music instead
+
+	if ( snd === music_now ) {
+		play = music_home;
+	}
+
+	PS.audioPlayChannel( play );
+	music_now = play;
+};
+
 
 
 
@@ -305,16 +333,13 @@ const _PLANE_TAIL = 2; // grid plane of tail sprites
 
 const _COLOR_TEXT = PS.COLOR_BLACK;
 const _COLOR_HEAD = PS.COLOR_GREEN;
-const _COLOR_TAIL = PS.COLOR_GRAY_DARK;
+const _COLOR_TAIL = PS.COLOR_GRAY;
 const _COLOR_WALL = PS.COLOR_BLACK;
-const _COLOR_FLOOR = PS.COLOR_GRAY;
 const _COLOR_BG = PS.COLOR_GRAY_LIGHT;
 const _COLOR_DEATH = PS.COLOR_RED;
 
-const _SOUND_MOVE = "fx_click"; // head movement sound
-const _SOUND_ADD = "fx_coin7"; // add tail element sound
-const _SOUND_START = "fx_ding"; // start sound
-const _SOUND_DEATH = "fx_squawk"; // death sound
+const _SOUND_START = "fx_swoosh"; // start sound
+const _SOUND_DEATH = "fx_wilhelm"; // death sound
 
 // VARIABLES
 
@@ -370,11 +395,15 @@ const _death = function () {
 	// 	PS.spriteDelete( element.id );
 	// } );
 
+	PS.dbEvent( DB, "Rats Collected", _tail.length);
 	_tail.length = 0; // empty array
 
 	PS.spriteSolidColor( _head_id, _COLOR_DEATH );
 	PS.audioPlay( _SOUND_DEATH );
 	PS.statusText( "Lost 'em! Any key to restart." );
+
+
+	PS.dbSend( DB, USERS);
 };
 
 const _new_game = function () {
@@ -405,13 +434,15 @@ const _new_game = function () {
 
 	_new_free(); // create first free element
 
-	PS.statusText( "Use WASD/arrow keys to lure rats!" );
+	PS.statusText( "Use WASD/arrow keys to collect rats!" );
 };
 
 // Add free sprite to tail
 
 const _add_tail = function ( id ) {
 	let x, y;
+
+	PS.audioPlay( "rat", { path : "audio/"} );
 
 	// If tail is present, use previous location of last element
 
@@ -576,6 +607,9 @@ const loadGame2 = function(){
 	PS.border( PS.ALL, PS.ALL, 0 ); // hide borders
 	PS.statusColor( _COLOR_TEXT );
 
+	PS.audioPlay( "FluteSong", { path : "audio/",loop : true } )
+
+
 	// Draw top and bottom walls
 
 	let bottom = _GRID_Y - 1;
@@ -648,40 +682,48 @@ PS.init = function( system, options ) {
 	initButton( BUTTON_BLUE, click_blue );
 
 	//Load all the audio
-	PS.audioLoad( "xylo_a4" );
-	PS.audioLoad( "xylo_c5" );
-	PS.audioLoad( "xylo_c6" );
-	PS.audioLoad( "xylo_c7" );
+	PS.audioLoad( "fx_wilhelm" );
+	PS.audioLoad( "fx_swoosh" );
 
 	//Load other audio
 	PS.audioLoad( "ocarinaGreen", { path : "audio/"} );
 	PS.audioLoad( "ocarinaRed", { path : "audio/"} );
 	PS.audioLoad( "ocarinaYellow", { path : "audio/"} );
 	PS.audioLoad( "ocarinaBlue", { path : "audio/"} );
+	PS.audioLoad( "rat", { path : "audio/"} );
+
+	//Load Background Music
+	PS.audioLoad( "FluteSong", {
+		path : "audio/",
+		loop : true,
+		onLoad : function ( data ) {
+			music_home = data.channel; // save the channel ID
+			music_now = music_home; // and remember that it's running
+		}
+	} );
 
 
-	//
-	// const onLogin = function ( id, username ) {
-	// 	if ( username === PS.ERROR ) {
-	// 		PS.statusText( "Login failed; aborting." );
-	// 		return; // aborts game startup
-	// 	}
-	//
-	// 	user = username; // save collected username
-	// 	PS.statusText( "Hello, " + user + "!" );
-	//
-	// 	// Final game startup code goes here
-	// 	nextSequence();
-	// 	PS.statusText( "Press SPACE to start." );
-	// };
+	const onLogin = function ( id, username ) {
+		if ( username === PS.ERROR ) {
+			PS.statusText( "Login failed; aborting." );
+			return; // aborts game startup
+		}
+
+		user = username; // save collected username
+		PS.statusText( "Hello, " + user + "!" );
+
+		// Final game startup code goes here
+		nextSequence();
+		PS.statusText( "CLICK grey bead to start." );
+	};
 
 	// Collect user credentials, init database
 	// NOTE: To disable DB operations during development,
 	// change the value of .active to false
 
-	nextSequence();
-	PS.statusText( "CLICK grey bead to start." );
-	// PS.dbLogin( DB, onLogin, { active : true } );
+	// nextSequence();
+	// PS.statusText( "CLICK grey bead to start." );
+	PS.dbLogin( DB, onLogin, { active : true } );
 
 };
 
