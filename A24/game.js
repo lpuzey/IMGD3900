@@ -208,7 +208,7 @@ const humans = function () {
 const loadGame1 = function(){
 	PS.gridSize( 32, 32 );
 	PS.border( PS.ALL, PS.ALL, 0 ); // no borders
-	PS.imageLoad( "images/house1.bmp", myLoader );
+	PS.imageLoad( "images/House1.bmp", myLoader );
 	PS.statusText( "Click to Infest." );
 
 	PS.timerStart( 6, tickRats );
@@ -920,7 +920,7 @@ PS.touch = function( x, y, data, options ) {
 		//human runs out of the house
 		if((totalRats > ratGoal)&&(!finishedGame1)) {
 			PS.timerStart( 6, humans);
-			PS.imageLoad( "images/house1i.bmp", myLoader );
+			PS.imageLoad( "images/House1i.bmp", myLoader );
 			PS.audioPlay( "fx_wilhelm" );
 			finishedGame1 = true;
 			PS.dbEvent( DB, "Game1 Complete?", finishedGame1);
