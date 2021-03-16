@@ -883,9 +883,9 @@ PS.init = function( system, options ) {
 		PS.statusText( "Hello, " + user + "!" );
 
 		// Final game startup code goes here
-
+		loadGame1();
 	};
-	loadGame1();
+
 
 	// Collect user credentials, init database
 	// NOTE: To disable DB operations during development,
