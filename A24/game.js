@@ -73,6 +73,18 @@ let ratGoal = 7;
 const BOTTOM_ROW = 20;
 let finishedGame1 = false;
 
+// Image loading function
+// Called when image loads successfully
+// [data] parameter will contain imageData
+let myLoader;
+
+myLoader = function ( imageData ) {
+
+	// Blit the image to the grid at 0, 0
+
+	PS.imageBlit( imageData, 0, 0 );
+};
+
 const tickRats = function () {
 	"use strict";
 	var len, i, x, y;
@@ -439,18 +451,6 @@ const click_blue = function () {
 
 };
 
-
-// Image loading function
-// Called when image loads successfully
-// [data] parameter will contain imageData
-let myLoader;
-
-myLoader = function ( imageData ) {
-
-	// Blit the image to the grid at 0, 0
-
-	PS.imageBlit( imageData, 0, 0 );
-};
 
 let music_now = null; // stores ID of what's currently playing
 
@@ -883,8 +883,9 @@ PS.init = function( system, options ) {
 		PS.statusText( "Hello, " + user + "!" );
 
 		// Final game startup code goes here
-		loadGame1();
+
 	};
+	loadGame1();
 
 	// Collect user credentials, init database
 	// NOTE: To disable DB operations during development,
