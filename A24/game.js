@@ -221,7 +221,7 @@ const loadGame1 = function(){
 	PS.gridSize( 32, 32 );
 	PS.border( PS.ALL, PS.ALL, 0 ); // no borders
 	PS.imageLoad( "images/House1.bmp", myLoader );
-	PS.statusText( "Click to Infest." );
+	PS.statusText( "CLICK below house to Infest." );
 
 	PS.timerStart( 6, tickRats );
 };
